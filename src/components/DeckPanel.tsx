@@ -1,10 +1,11 @@
-import type { DeckCard } from '../types/card'
+import type { Card, DeckCard } from '../types/card'
 import { CardTile } from './CardTile'
 
 interface DeckPanelProps {
   cards: DeckCard[]
   totalCount: number
   deckSize: number
+  onAdd: (card: Card) => void
   onRemove: (cardId: string) => void
   onClear: () => void
 }
@@ -28,7 +29,7 @@ function exportDeckList(cards: DeckCard[]): string {
     .join('\n')
 }
 
-export function DeckPanel({ cards, totalCount, deckSize, onRemove, onClear }: DeckPanelProps) {
+export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClear }: DeckPanelProps) {
   const groups = groupBySupertype(cards)
 
   const handleExport = async () => {
@@ -70,7 +71,13 @@ export function DeckPanel({ cards, totalCount, deckSize, onRemove, onClear }: De
             </h3>
             <div className="card-grid">
               {group.map((dc) => (
-                <CardTile key={dc.card.id} card={dc.card} count={dc.count} onRemove={() => onRemove(dc.card.id)} />
+                <CardTile
+                  key={dc.card.id}
+                  card={dc.card}
+                  count={dc.count}
+                  onAdd={onAdd}
+                  onRemove={() => onRemove(dc.card.id)}
+                />
               ))}
             </div>
           </div>

@@ -24,6 +24,7 @@ function App() {
           cards={deck.cards}
           totalCount={deck.totalCount}
           deckSize={deck.deckSize}
+          onAdd={handleAddCard}
           onRemove={deck.removeCard}
           onClear={deck.clearDeck}
         />
