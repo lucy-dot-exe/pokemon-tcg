@@ -251,6 +251,65 @@ body {
   color: var(--text-muted);
 }
 
+.inline-confirm {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.inline-confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inline-confirm-actions button {
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.inline-confirm-actions button:first-child {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.dismiss-inline {
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.export-fallback {
+  width: 100%;
+  min-height: 6rem;
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
 .import-progress-track {
   height: 6px;
   border-radius: 3px;

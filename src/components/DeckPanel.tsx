@@ -33,24 +33,28 @@ export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClea
   const [importing, setImporting] = useState(false)
   const [importProgress, setImportProgress] = useState<{ completed: number; total: number } | null>(null)
   const [importIssues, setImportIssues] = useState<ImportIssue[]>([])
+  const [importError, setImportError] = useState<string | null>(null)
+  const [confirmingImport, setConfirmingImport] = useState(false)
+  const [exportStatus, setExportStatus] = useState<string | null>(null)
+  const [exportFallbackText, setExportFallbackText] = useState<string | null>(null)
 
   const handleExport = async () => {
     const text = formatDeckList(cards)
+    setExportFallbackText(null)
     try {
       await writeClipboardText(text)
-      alert('Deck list copied to clipboard.')
+      setExportStatus('Deck list copied to clipboard.')
     } catch (err) {
-      alert(err instanceof Error ? `${err.message}\n\n${text}` : text)
+      setExportStatus(err instanceof Error ? err.message : 'Failed to copy deck list to clipboard.')
+      setExportFallbackText(text)
     }
   }
 
-  const handleImport = async () => {
-    if (cards.length > 0 && !window.confirm('Importing will replace your current deck. Continue?')) {
-      return
-    }
-
+  const runImport = async () => {
+    setConfirmingImport(false)
     setImporting(true)
     setImportIssues([])
+    setImportError(null)
     try {
       const text = await readClipboardText()
       const { lines, unparsedLines } = parseDeckList(text)
@@ -64,11 +68,19 @@ export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClea
         ...issues,
       ])
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to import a deck list from the clipboard.')
+      setImportError(err instanceof Error ? err.message : 'Failed to import a deck list from the clipboard.')
     } finally {
       setImporting(false)
       setImportProgress(null)
     }
+  }
+
+  const handleImportClick = () => {
+    if (cards.length > 0) {
+      setConfirmingImport(true)
+      return
+    }
+    void runImport()
   }
 
   return (
@@ -78,7 +90,7 @@ export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClea
           Your deck ({totalCount}/{deckSize})
         </h2>
         <div className="deck-panel-actions">
-          <button type="button" onClick={handleImport} disabled={importing}>
+          <button type="button" onClick={handleImportClick} disabled={importing}>
             {importing
               ? importProgress
                 ? `Importing ${importProgress.completed}/${importProgress.total}…`
@@ -94,8 +106,56 @@ export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClea
         </div>
       </div>
 
+      {confirmingImport && (
+        <div className="inline-confirm">
+          <span>Importing will replace your current deck.</span>
+          <div className="inline-confirm-actions">
+            <button type="button" onClick={() => void runImport()}>
+              Replace deck
+            </button>
+            <button type="button" onClick={() => setConfirmingImport(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {exportStatus && (
+        <p className={exportFallbackText ? 'status-text status-error' : 'status-text'}>
+          {exportStatus}
+          <button type="button" className="dismiss-inline" onClick={() => setExportStatus(null)} aria-label="Dismiss">
+            ×
+          </button>
+        </p>
+      )}
+
+      {exportFallbackText && (
+        <textarea
+          className="export-fallback"
+          readOnly
+          value={exportFallbackText}
+          onFocus={(e) => e.currentTarget.select()}
+          aria-label="Deck list text to copy manually"
+        />
+      )}
+
+      {importError && (
+        <p className="status-text status-error">
+          {importError}
+          <button type="button" className="dismiss-inline" onClick={() => setImportError(null)} aria-label="Dismiss">
+            ×
+          </button>
+        </p>
+      )}
+
       {importProgress && (
-        <div className="import-progress-track" role="progressbar" aria-valuenow={importProgress.completed} aria-valuemin={0} aria-valuemax={importProgress.total}>
+        <div
+          className="import-progress-track"
+          role="progressbar"
+          aria-valuenow={importProgress.completed}
+          aria-valuemin={0}
+          aria-valuemax={importProgress.total}
+        >
           <div
             className="import-progress-fill"
             style={{ width: `${(importProgress.completed / Math.max(importProgress.total, 1)) * 100}%` }}
