@@ -151,6 +151,11 @@ export function useCardSearch(query: string, format?: Format, supertype?: Supert
     setResults([])
     setHasMore(false)
     setError(null)
+    // A fresh search supersedes any in-flight "load more" for the previous
+    // query/filter — its abort() only fires once the new fetch actually
+    // starts, so without this its catch handler's early AbortError return
+    // would leave "Loading more…" stuck on screen indefinitely.
+    setLoadingMore(false)
 
     const isBrowsing = !query.trim()
     if (isBrowsing) {

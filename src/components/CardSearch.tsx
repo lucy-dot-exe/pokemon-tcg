@@ -78,6 +78,9 @@ export function CardSearch({ onAddCard, copiesOf }: CardSearchProps) {
       </div>
 
       {loadingMore && <p className="status-text">Loading more…</p>}
+      {!loading && !loadingMore && !hasMore && results.length > 0 && (
+        <p className="status-text">All cards loaded.</p>
+      )}
     </section>
   )
 }
