@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { searchCards } from '../api/pokemonTcg'
-import type { Card } from '../types/card'
+import { dedupeByFunctionalText } from '../lib/cards'
+import { isStandardLegal } from '../lib/format'
+import type { Card, Format } from '../types/card'
 
 export interface UseCardSearchResult {
   results: Card[]
@@ -10,7 +12,7 @@ export interface UseCardSearchResult {
 
 const DEBOUNCE_MS = 400
 
-export function useCardSearch(query: string): UseCardSearchResult {
+export function useCardSearch(query: string, format?: Format): UseCardSearchResult {
   const [results, setResults] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,9 +34,10 @@ export function useCardSearch(query: string): UseCardSearchResult {
       setLoading(true)
       setError(null)
 
-      searchCards({ name: query, signal: controller.signal })
+      searchCards({ name: query, format, signal: controller.signal })
         .then((response) => {
-          setResults(response.data)
+          const cards = format === 'standard' ? response.data.filter(isStandardLegal) : response.data
+          setResults(dedupeByFunctionalText(cards))
           setLoading(false)
         })
         .catch((err: unknown) => {
@@ -45,7 +48,7 @@ export function useCardSearch(query: string): UseCardSearchResult {
     }, DEBOUNCE_MS)
 
     return () => clearTimeout(timeout)
-  }, [query])
+  }, [query, format])
 
   useEffect(() => () => abortRef.current?.abort(), [])
 

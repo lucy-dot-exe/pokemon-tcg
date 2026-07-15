@@ -12,6 +12,29 @@ export interface CardSet {
   releaseDate: string
 }
 
+export type Format = 'standard' | 'expanded' | 'unlimited'
+
+export type Legalities = Partial<Record<Format, 'Legal' | 'Banned'>>
+
+export interface Attack {
+  name: string
+  cost: string[]
+  convertedEnergyCost: number
+  damage: string
+  text: string
+}
+
+export interface Ability {
+  name: string
+  text: string
+  type: string
+}
+
+export interface WeaknessResistance {
+  type: string
+  value: string
+}
+
 export interface Card {
   id: string
   name: string
@@ -20,10 +43,17 @@ export interface Card {
   hp?: string
   types?: string[]
   rules?: string[]
+  attacks?: Attack[]
+  abilities?: Ability[]
+  weaknesses?: WeaknessResistance[]
+  resistances?: WeaknessResistance[]
+  retreatCost?: string[]
   set: CardSet
   number: string
   rarity?: string
   images: CardImages
+  legalities: Legalities
+  regulationMark?: string
 }
 
 export interface CardSearchResponse {

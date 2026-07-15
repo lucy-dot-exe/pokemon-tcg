@@ -100,15 +100,29 @@ body {
   margin-top: 0;
 }
 
+.card-search-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .card-search input[type='search'] {
-  width: 100%;
+  flex: 1;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg);
   color: var(--text);
   font-size: 1rem;
-  margin-bottom: 1rem;
+}
+
+.card-search select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
 }
 
 .status-text {
