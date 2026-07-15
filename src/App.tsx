@@ -73,6 +73,12 @@ function App() {
           <DeckValidationsPanel cards={deck.cards} />
         </main>
       )}
+      <footer className="app-footer">
+        Made by{' '}
+        <a href="https://github.com/lucy-dot-exe" target="_blank" rel="noreferrer">
+          lucy-dot-exe
+        </a>
+      </footer>
     </div>
   )
 }

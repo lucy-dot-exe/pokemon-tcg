@@ -72,6 +72,22 @@ body {
   grid-template-columns: 1fr;
 }
 
+.app-footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.app-footer a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.app-footer a:hover {
+  color: var(--accent);
+}
+
 .app-main {
   flex: 1;
   display: grid;
