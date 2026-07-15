@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
+import { isBasicEnergy } from '../lib/cards'
 import type { Card, DeckCard } from '../types/card'
 
 const STORAGE_KEY = 'pokemon-tcg-deck-builder:deck'
 const MAX_COPIES = 4
 const DECK_SIZE = 60
-
-function isBasicEnergy(card: Card): boolean {
-  return card.supertype === 'Energy' && !!card.subtypes?.includes('Basic')
-}
 
 function loadDeck(): DeckCard[] {
   try {

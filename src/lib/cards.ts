@@ -4,6 +4,10 @@ export function isBasicPokemon(card: Card): boolean {
   return card.supertype === 'Pokémon' && !!card.subtypes?.includes('Basic')
 }
 
+export function isBasicEnergy(card: Card): boolean {
+  return card.supertype === 'Energy' && !!card.subtypes?.includes('Basic')
+}
+
 /**
  * Identifies cards that play identically: same name and game text (attacks,
  * abilities, HP, types, weaknesses, resistances, retreat cost, rules).
