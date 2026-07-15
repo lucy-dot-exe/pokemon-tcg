@@ -57,6 +57,7 @@ function App() {
             onAdd={handleAddCard}
             onRemove={deck.removeCard}
             onClear={deck.clearDeck}
+            onImport={deck.importDeck}
           />
         </main>
       )}

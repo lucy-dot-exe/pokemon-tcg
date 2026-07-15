@@ -10,6 +10,7 @@ export interface CardSet {
   name: string
   series: string
   releaseDate: string
+  ptcgoCode?: string
 }
 
 export type Format = 'standard' | 'expanded' | 'unlimited'

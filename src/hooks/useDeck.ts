@@ -27,6 +27,7 @@ export interface UseDeckResult {
   removeCard: (cardId: string) => void
   setCount: (cardId: string, count: number) => void
   clearDeck: () => void
+  importDeck: (cards: DeckCard[]) => void
   copiesOf: (cardId: string) => number
   maxCopies: number
   deckSize: number
@@ -101,6 +102,8 @@ export function useDeck(): UseDeckResult {
 
   const clearDeck = useCallback(() => setCards([]), [])
 
+  const importDeck = useCallback((imported: DeckCard[]) => setCards(imported), [])
+
   return {
     cards,
     totalCount,
@@ -109,6 +112,7 @@ export function useDeck(): UseDeckResult {
     removeCard,
     setCount,
     clearDeck,
+    importDeck,
     copiesOf,
     maxCopies: MAX_COPIES,
     deckSize: DECK_SIZE,

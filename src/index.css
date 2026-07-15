@@ -251,6 +251,57 @@ body {
   color: var(--text-muted);
 }
 
+.import-progress-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.import-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.15s ease-out;
+}
+
+.import-issues {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border: 1px solid #d03b3b;
+  border-radius: 6px;
+  background: rgba(208, 59, 59, 0.08);
+}
+
+.import-issues-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.import-issues-header button {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.import-issues ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.import-issues code {
+  color: var(--text);
+}
+
 /* Statistics panel */
 
 .viz-root {

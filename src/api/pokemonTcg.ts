@@ -52,3 +52,31 @@ export async function getCardById(id: string, signal?: AbortSignal): Promise<Car
   const { data } = (await response.json()) as { data: Card }
   return data
 }
+
+async function queryCards(q: string, signal?: AbortSignal): Promise<Card[]> {
+  const params = new URLSearchParams()
+  params.set('q', q)
+  params.set('pageSize', '250')
+  const response = await fetch(`${BASE_URL}/cards?${params.toString()}`, { signal })
+  if (!response.ok) {
+    throw new Error(`Pokemon TCG API request failed: ${response.status} ${response.statusText}`)
+  }
+  const data = (await response.json()) as CardSearchResponse
+  return data.data
+}
+
+export interface ExactPrintQuery {
+  name: string
+  ptcgoCode: string
+  number: string
+}
+
+/** Resolves the exact print referenced by a deck-list line (name + set code + number). */
+export function findExactPrint(query: ExactPrintQuery, signal?: AbortSignal): Promise<Card[]> {
+  return queryCards(`name:"${query.name}" set.ptcgoCode:${query.ptcgoCode} number:${query.number}`, signal)
+}
+
+/** Falls back to an exact (non-wildcard) name match when the print above can't be found. */
+export function findByExactName(name: string, signal?: AbortSignal): Promise<Card[]> {
+  return queryCards(`name:"${name}"`, signal)
+}

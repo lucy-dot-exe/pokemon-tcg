@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import type { Card, DeckCard } from '../types/card'
+import { formatDeckList, parseDeckList } from '../lib/deckList'
+import { resolveDeckList, type ImportIssue } from '../lib/deckImport'
+import { readClipboardText, writeClipboardText } from '../lib/clipboard'
 import { CardTile } from './CardTile'
 
 interface DeckPanelProps {
@@ -8,6 +12,7 @@ interface DeckPanelProps {
   onAdd: (card: Card) => void
   onRemove: (cardId: string) => void
   onClear: () => void
+  onImport: (cards: DeckCard[]) => void
 }
 
 const GROUP_ORDER = ['Pokémon', 'Trainer', 'Energy'] as const
@@ -23,22 +28,46 @@ function groupBySupertype(cards: DeckCard[]) {
   return groups
 }
 
-function exportDeckList(cards: DeckCard[]): string {
-  return cards
-    .map((dc) => `${dc.count} ${dc.card.name} (${dc.card.set.name} ${dc.card.number})`)
-    .join('\n')
-}
-
-export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClear }: DeckPanelProps) {
+export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClear, onImport }: DeckPanelProps) {
   const groups = groupBySupertype(cards)
+  const [importing, setImporting] = useState(false)
+  const [importProgress, setImportProgress] = useState<{ completed: number; total: number } | null>(null)
+  const [importIssues, setImportIssues] = useState<ImportIssue[]>([])
 
   const handleExport = async () => {
-    const text = exportDeckList(cards)
+    const text = formatDeckList(cards)
     try {
-      await navigator.clipboard.writeText(text)
+      await writeClipboardText(text)
       alert('Deck list copied to clipboard.')
-    } catch {
-      alert(text)
+    } catch (err) {
+      alert(err instanceof Error ? `${err.message}\n\n${text}` : text)
+    }
+  }
+
+  const handleImport = async () => {
+    if (cards.length > 0 && !window.confirm('Importing will replace your current deck. Continue?')) {
+      return
+    }
+
+    setImporting(true)
+    setImportIssues([])
+    try {
+      const text = await readClipboardText()
+      const { lines, unparsedLines } = parseDeckList(text)
+      setImportProgress({ completed: 0, total: lines.length })
+      const { cards: resolvedCards, issues } = await resolveDeckList(lines, {
+        onProgress: (completed, total) => setImportProgress({ completed, total }),
+      })
+      onImport(resolvedCards)
+      setImportIssues([
+        ...unparsedLines.map((raw) => ({ raw, reason: "Couldn't parse this line." })),
+        ...issues,
+      ])
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to import a deck list from the clipboard.')
+    } finally {
+      setImporting(false)
+      setImportProgress(null)
     }
   }
 
@@ -49,6 +78,13 @@ export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClea
           Your deck ({totalCount}/{deckSize})
         </h2>
         <div className="deck-panel-actions">
+          <button type="button" onClick={handleImport} disabled={importing}>
+            {importing
+              ? importProgress
+                ? `Importing ${importProgress.completed}/${importProgress.total}…`
+                : 'Importing…'
+              : 'Import'}
+          </button>
           <button type="button" onClick={handleExport} disabled={cards.length === 0}>
             Copy list
           </button>
@@ -57,6 +93,35 @@ export function DeckPanel({ cards, totalCount, deckSize, onAdd, onRemove, onClea
           </button>
         </div>
       </div>
+
+      {importProgress && (
+        <div className="import-progress-track" role="progressbar" aria-valuenow={importProgress.completed} aria-valuemin={0} aria-valuemax={importProgress.total}>
+          <div
+            className="import-progress-fill"
+            style={{ width: `${(importProgress.completed / Math.max(importProgress.total, 1)) * 100}%` }}
+          />
+        </div>
+      )}
+
+      {importIssues.length > 0 && (
+        <div className="import-issues">
+          <div className="import-issues-header">
+            <span>
+              {importIssues.length} line{importIssues.length === 1 ? '' : 's'} couldn't be imported
+            </span>
+            <button type="button" onClick={() => setImportIssues([])} aria-label="Dismiss import issues">
+              ×
+            </button>
+          </div>
+          <ul>
+            {importIssues.map((issue) => (
+              <li key={issue.raw}>
+                <code>{issue.raw}</code> — {issue.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {cards.length === 0 && <p className="status-text">Search for cards and add them to your deck.</p>}
 
