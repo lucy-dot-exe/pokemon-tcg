@@ -4,6 +4,7 @@ import { CardSearch } from './components/CardSearch'
 import { DeckPanel } from './components/DeckPanel'
 import { StatisticsPanel } from './components/StatisticsPanel'
 import { ReviewPanel } from './components/ReviewPanel'
+import { DeckValidationsPanel } from './components/DeckValidationsPanel'
 import type { Card } from './types/card'
 
 type View = 'builder' | 'statistics' | 'review'
@@ -69,6 +70,7 @@ function App() {
       {view === 'review' && (
         <main className="app-main app-main-single">
           <ReviewPanel cards={deck.cards} />
+          <DeckValidationsPanel cards={deck.cards} />
         </main>
       )}
     </div>

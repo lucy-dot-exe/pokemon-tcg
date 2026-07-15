@@ -43,6 +43,7 @@ export interface Card {
   subtypes?: string[]
   hp?: string
   types?: string[]
+  evolvesFrom?: string
   rules?: string[]
   attacks?: Attack[]
   abilities?: Ability[]

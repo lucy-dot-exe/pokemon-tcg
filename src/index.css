@@ -444,6 +444,18 @@ body {
   color: var(--stat-value-ink);
 }
 
+.stat-tile-value-good {
+  color: var(--status-good);
+}
+
+.stat-tile-value-warning {
+  color: var(--status-warning);
+}
+
+.stat-tile-value-critical {
+  color: var(--status-critical);
+}
+
 .stat-tile-hint {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -564,6 +576,7 @@ body {
 .review-panel {
   --status-good: #0ca30c;
   --status-critical: #d03b3b;
+  --status-warning: #fab219;
 }
 
 .review-header {
@@ -643,4 +656,88 @@ body {
 .review-panel h3 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1rem;
+}
+
+.review-warning-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.review-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--status-warning);
+  border-radius: 6px;
+  background: rgba(250, 178, 25, 0.08);
+}
+
+.review-warning-icon {
+  flex-shrink: 0;
+  color: var(--status-warning);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.review-warning-text-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.review-warning-details {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.review-warning button {
+  flex-shrink: 0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.review-warning button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.review-warning-acknowledged {
+  border-color: var(--border);
+  background: var(--bg);
+  opacity: 0.7;
+}
+
+.review-warning-acknowledged .review-warning-icon {
+  color: var(--status-good);
+}
+
+.review-warning-acknowledged .review-warning-details {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-muted);
+}
+
+.review-warning-passed {
+  border-color: var(--border);
+  background: var(--bg);
+}
+
+.review-warning-passed .review-warning-icon {
+  color: var(--status-good);
 }

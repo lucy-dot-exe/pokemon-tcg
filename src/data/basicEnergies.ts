@@ -28,6 +28,10 @@ function sveEnergy(number: number, element: string): Card {
     name: `Basic ${element} Energy`,
     supertype: 'Energy',
     subtypes: ['Basic'],
+    // The real API data for these prints is inconsistent about this field
+    // (some entries omit it) — set it explicitly here since it's needed to
+    // know what type of energy each card actually provides.
+    types: [element],
     set: SVE_SET,
     number: String(number),
     rarity: 'Common',
