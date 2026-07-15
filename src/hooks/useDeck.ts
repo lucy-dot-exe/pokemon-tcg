@@ -50,12 +50,6 @@ export function useDeck(): UseDeckResult {
       let result: { ok: boolean; reason?: string } = { ok: true }
 
       setCards((prev) => {
-        const currentTotal = prev.reduce((sum, dc) => sum + dc.count, 0)
-        if (currentTotal >= DECK_SIZE) {
-          result = { ok: false, reason: `Deck already has ${DECK_SIZE} cards.` }
-          return prev
-        }
-
         const existing = prev.find((dc) => dc.card.id === card.id)
         const unlimited = isBasicEnergy(card)
 
