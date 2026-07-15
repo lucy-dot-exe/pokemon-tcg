@@ -1,10 +1,13 @@
-import type { Card, CardSearchResponse, Format } from '../types/card'
+import { BASIC_ENERGY_NAMES } from '../data/basicEnergies'
+import { standardRegulationMarks } from '../lib/format'
+import type { Card, CardSearchResponse, Format, Supertype } from '../types/card'
 
 const BASE_URL = 'https://api.pokemontcg.io/v2'
 
 export interface SearchCardsOptions {
   name?: string
   format?: Format
+  supertype?: Supertype
   page?: number
   pageSize?: number
   signal?: AbortSignal
@@ -13,20 +16,39 @@ export interface SearchCardsOptions {
 export async function searchCards({
   name,
   format,
+  supertype,
   page = 1,
-  pageSize = 32,
+  pageSize = 100,
   signal,
 }: SearchCardsOptions): Promise<CardSearchResponse> {
   const queryParts: string[] = []
   if (name && name.trim()) {
     queryParts.push(`name:${name.trim()}*`)
   }
+  if (supertype) {
+    queryParts.push(`supertype:${supertype}`)
+  }
   // The API's own legalities.standard flag lags behind real rotations, so
-  // "standard" is filtered client-side from regulationMark instead (see
-  // lib/format.ts). Expanded/unlimited aren't affected by rotation the same
-  // way, so those still use the API's field directly.
-  if (format === 'expanded' || format === 'unlimited') {
+  // "standard" is filtered directly by regulationMark instead (this API
+  // doesn't support a >= comparison, so it's an explicit OR of every mark
+  // from the current cutoff onward — see lib/format.ts). Expanded/unlimited
+  // aren't affected by rotation the same way, so those still use the API's
+  // legalities field directly.
+  if (format === 'standard') {
+    const marksClause = standardRegulationMarks()
+      .map((mark) => `regulationMark:${mark}`)
+      .join(' OR ')
+    queryParts.push(`(${marksClause})`)
+  } else if (format === 'expanded' || format === 'unlimited') {
     queryParts.push(`legalities.${format}:legal`)
+  }
+  // Basic Energy never changes and has no reason to be searched for — it's
+  // shown from the CANONICAL_BASIC_ENERGIES constant instead (see
+  // lib/cards.ts and data/basicEnergies.ts), so exclude every name it might
+  // appear under (this API doesn't support grouped/compound negation, so
+  // each name is excluded individually).
+  for (const basicEnergyName of BASIC_ENERGY_NAMES) {
+    queryParts.push(`-name:"${basicEnergyName}"`)
   }
 
   const params = new URLSearchParams()

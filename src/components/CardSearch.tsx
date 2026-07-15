@@ -1,24 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCardSearch } from '../hooks/useCardSearch'
 import { CardTile } from './CardTile'
-import type { Card, Format } from '../types/card'
+import type { Card, Supertype } from '../types/card'
 
 interface CardSearchProps {
   onAddCard: (card: Card) => void
   copiesOf: (cardId: string) => number
 }
 
-const FORMAT_OPTIONS: { value: Format | ''; label: string }[] = [
-  { value: '', label: 'All formats' },
-  { value: 'standard', label: 'Standard' },
-  { value: 'expanded', label: 'Expanded' },
-  { value: 'unlimited', label: 'Unlimited' },
-]
+const SUPERTYPES: Supertype[] = ['Pokémon', 'Trainer', 'Energy']
 
 export function CardSearch({ onAddCard, copiesOf }: CardSearchProps) {
   const [query, setQuery] = useState('')
-  const [format, setFormat] = useState<Format | ''>('')
-  const { results, loading, error } = useCardSearch(query, format || undefined)
+  const [supertype, setSupertype] = useState<Supertype>('Pokémon')
+  const { results, loading, loadingMore, error, hasMore, loadMore } = useCardSearch(query, 'standard', supertype)
+
+  const gridRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const root = gridRef.current
+    const sentinel = sentinelRef.current
+    if (!root || !sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore()
+      },
+      { root, rootMargin: '200px' },
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+    // hasMore is read here only to re-attach the observer when the sentinel
+    // element mounts/unmounts (it's rendered conditionally on hasMore).
+  }, [loadMore, hasMore])
 
   return (
     <section className="card-search">
@@ -31,30 +46,38 @@ export function CardSearch({ onAddCard, copiesOf }: CardSearchProps) {
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search Pokemon TCG cards by name"
         />
-        <select
-          value={format}
-          onChange={(e) => setFormat(e.target.value as Format | '')}
-          aria-label="Filter by tournament format"
-        >
-          {FORMAT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+      </div>
+
+      <div className="supertype-toggle" role="group" aria-label="Filter by card type">
+        {SUPERTYPES.map((type) => (
+          <button
+            key={type}
+            type="button"
+            className={supertype === type ? 'supertype-toggle-active' : ''}
+            onClick={() => setSupertype(type)}
+            aria-pressed={supertype === type}
+          >
+            {type}
+          </button>
+        ))}
       </div>
 
       {loading && <p className="status-text">Searching…</p>}
       {error && <p className="status-text status-error">{error}</p>}
-      {!loading && !error && query.trim() && results.length === 0 && (
-        <p className="status-text">No cards found for "{query}".</p>
+      {!loading && !error && results.length === 0 && (
+        <p className="status-text">
+          {query.trim() ? `No cards found for "${query}".` : `No ${supertype} cards found.`}
+        </p>
       )}
 
-      <div className="card-grid">
+      <div className="card-grid" ref={gridRef}>
         {results.map((card) => (
           <CardTile key={card.id} card={card} count={copiesOf(card.id)} onAdd={onAddCard} />
         ))}
+        {hasMore && <div ref={sentinelRef} className="card-grid-sentinel" />}
       </div>
+
+      {loadingMore && <p className="status-text">Loading more…</p>}
     </section>
   )
 }

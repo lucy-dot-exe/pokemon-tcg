@@ -129,6 +129,29 @@ body {
   font-size: 1rem;
 }
 
+.supertype-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.supertype-toggle button {
+  flex: 1;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.supertype-toggle button.supertype-toggle-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .status-text {
   color: var(--text-muted);
   font-size: 0.9rem;
@@ -144,6 +167,11 @@ body {
   gap: 0.75rem;
   max-height: 70vh;
   overflow-y: auto;
+}
+
+.card-grid-sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
 }
 
 .card-tile {
