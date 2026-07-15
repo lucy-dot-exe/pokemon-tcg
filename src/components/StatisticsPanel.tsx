@@ -1,4 +1,5 @@
 import { useDeckStatistics } from '../hooks/useDeckStatistics'
+import { DeckCompositionSection } from './DeckCompositionSection'
 import type { DeckCard } from '../types/card'
 
 interface StatisticsPanelProps {
@@ -23,7 +24,11 @@ export function StatisticsPanel({ cards }: StatisticsPanelProps) {
 
   return (
     <section className="statistics-panel viz-root">
-      <h2>Opening hand statistics</h2>
+      <h2>Statistics</h2>
+
+      <DeckCompositionSection cards={cards} />
+
+      <h3>Opening hand statistics</h3>
       <p className="status-text">
         Based on a {stats.handSize}-card opening hand from your {stats.deckSize}-card deck
         ({stats.totalBasics} basic Pokémon).
