@@ -31,10 +31,22 @@ function basicEnergyType(card: Card): string {
  * Energy" is missing its `types` field entirely while sve-16, the same card
  * in the same set, has `types: ["Metal"]` — the full field-by-field key
  * would treat those as different cards).
+ *
+ * Trainer cards are keyed by name + subtypes alone, dropping `rules`: unlike
+ * Pokémon (where the same name can legitimately have different attacks/HP
+ * across sets), a Trainer name is never reused for a different effect, but
+ * the API's `rules` text is sometimes incomplete for a given print (e.g.
+ * "Counter Gain" in Ascended Heroes is missing one of the three rules lines
+ * present on the Surging Sparks print of the same card) — which the full key
+ * would otherwise treat as a different card.
  */
 function functionalKey(card: Card): string {
   if (isBasicEnergy(card)) {
     return JSON.stringify({ energyType: basicEnergyType(card), supertype: card.supertype })
+  }
+
+  if (card.supertype === 'Trainer') {
+    return JSON.stringify({ name: card.name, supertype: card.supertype, subtypes: card.subtypes })
   }
 
   return JSON.stringify({
