@@ -148,6 +148,7 @@ export function useCardSearch(query: string, format?: Format, supertype?: Supert
     pageRef.current = 1
     fetchedCountRef.current = 0
     totalCountRef.current = 0
+    setResults([])
     setHasMore(false)
     setError(null)
 
