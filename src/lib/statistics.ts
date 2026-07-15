@@ -1,4 +1,5 @@
 import type { DeckCard } from '../types/card'
+import { isBasicPokemon } from './cards'
 
 const OPENING_HAND_SIZE = 7
 
@@ -50,15 +51,11 @@ export interface OpeningHandStats {
   basicFetchChances: BasicFetchChance[]
 }
 
-function isBasicPokemon(dc: DeckCard): boolean {
-  return dc.card.supertype === 'Pokémon' && !!dc.card.subtypes?.includes('Basic')
-}
-
 export function computeOpeningHandStats(cards: DeckCard[]): OpeningHandStats {
   const deckSize = cards.reduce((sum, dc) => sum + dc.count, 0)
   const handSize = Math.min(OPENING_HAND_SIZE, deckSize)
 
-  const basics = cards.filter(isBasicPokemon)
+  const basics = cards.filter((dc) => isBasicPokemon(dc.card))
   const totalBasics = basics.reduce((sum, dc) => sum + dc.count, 0)
 
   const mulliganChance = deckSize > 0 ? hypergeometricPMF(deckSize, totalBasics, handSize, 0) : 0

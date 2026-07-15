@@ -3,9 +3,10 @@ import { useDeck } from './hooks/useDeck'
 import { CardSearch } from './components/CardSearch'
 import { DeckPanel } from './components/DeckPanel'
 import { StatisticsPanel } from './components/StatisticsPanel'
+import { ReviewPanel } from './components/ReviewPanel'
 import type { Card } from './types/card'
 
-type View = 'builder' | 'statistics'
+type View = 'builder' | 'statistics' | 'review'
 
 function App() {
   const deck = useDeck()
@@ -37,9 +38,16 @@ function App() {
           >
             Statistics
           </button>
+          <button
+            type="button"
+            className={view === 'review' ? 'app-nav-active' : ''}
+            onClick={() => setView('review')}
+          >
+            Review
+          </button>
         </nav>
       </header>
-      {view === 'builder' ? (
+      {view === 'builder' && (
         <main className="app-main">
           <CardSearch onAddCard={handleAddCard} copiesOf={deck.copiesOf} />
           <DeckPanel
@@ -51,9 +59,15 @@ function App() {
             onClear={deck.clearDeck}
           />
         </main>
-      ) : (
+      )}
+      {view === 'statistics' && (
         <main className="app-main app-main-single">
           <StatisticsPanel cards={deck.cards} />
+        </main>
+      )}
+      {view === 'review' && (
+        <main className="app-main app-main-single">
+          <ReviewPanel cards={deck.cards} />
         </main>
       )}
     </div>
