@@ -7,6 +7,9 @@
   --text: #1a1a1a;
   --text-muted: #666;
   --accent: #cc0000;
+  --type-pokemon: #2a78d6;
+  --type-trainer: #008300;
+  --type-energy: #e87ba4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,6 +19,9 @@
     --border: #34363b;
     --text: #ececec;
     --text-muted: #9a9a9a;
+    --type-pokemon: #3987e5;
+    --type-trainer: #008300;
+    --type-energy: #d55181;
   }
 }
 
@@ -68,10 +74,6 @@ body {
   font-weight: 600;
 }
 
-.app-main-single {
-  grid-template-columns: 1fr;
-}
-
 .app-footer {
   padding: 1rem;
   text-align: center;
@@ -103,10 +105,18 @@ body {
   }
 }
 
+/* Must come after the media query above to win the cascade at equal
+   specificity on wide screens — otherwise single-panel views (Statistics,
+   Interactions, Review) keep the two-column grid with an empty second column. */
+.app-main-single {
+  grid-template-columns: 1fr;
+}
+
 .card-search,
 .deck-panel,
 .statistics-panel,
-.review-panel {
+.review-panel,
+.interactions-panel {
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -116,7 +126,8 @@ body {
 .card-search h2,
 .deck-panel h2,
 .statistics-panel h2,
-.review-panel h2 {
+.review-panel h2,
+.interactions-panel h2 {
   margin-top: 0;
 }
 
@@ -421,12 +432,14 @@ body {
   }
 }
 
-.statistics-panel h3 {
+.statistics-panel h3,
+.interactions-panel h3 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1rem;
 }
 
-.statistics-panel h4 {
+.statistics-panel h4,
+.interactions-panel h4 {
   margin: 1rem 0 0.5rem;
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -602,6 +615,428 @@ body {
   border: 1px solid var(--border);
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.custom-rule-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.custom-rule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+
+.custom-rule-row button {
+  flex-shrink: 0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.custom-rule-row button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.interaction-toggle-popover-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.interaction-toggle-trigger {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.interaction-toggle-trigger:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.interaction-toggle-popover {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 10;
+  width: 320px;
+  max-width: 80vw;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.interaction-row {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.interaction-row > input[type='checkbox'] {
+  flex-shrink: 0;
+}
+
+.interaction-query-trigger {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}
+
+.interaction-query-trigger:hover {
+  color: var(--accent);
+}
+
+.interaction-query-results {
+  flex-basis: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+}
+
+.interaction-query-results ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.interaction-query-label {
+  margin: 0.5rem 0 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.interaction-query-label:first-child {
+  margin-top: 0;
+}
+
+.interaction-query-fields {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+}
+
+.interaction-query-fields li {
+  padding: 0.1rem 0;
+}
+
+.custom-rule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.custom-rule-form-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.custom-rule-form input,
+.custom-rule-form select {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-rule-form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.custom-rule-form-checkbox input {
+  flex: none;
+  width: auto;
+  padding: 0;
+}
+
+.custom-rule-form button[type='submit'] {
+  align-self: flex-start;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--panel-bg);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.custom-rule-form button[type='submit']:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+
+.custom-rule-form button[type='submit']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.interaction-graph-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.interaction-graph {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+}
+
+.interaction-graph-unified {
+  max-width: 600px;
+}
+
+.interaction-graph-edge {
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: stroke 0.15s ease;
+}
+
+.interaction-graph-edge-active {
+  stroke: var(--accent);
+}
+
+.interaction-graph-hub {
+  fill: var(--accent);
+}
+
+.interaction-graph-node {
+  cursor: grab;
+  outline: none;
+  touch-action: none;
+}
+
+.interaction-graph-node-dragging {
+  cursor: grabbing;
+}
+
+.interaction-graph-node-hit {
+  fill: transparent;
+}
+
+/* Scaled on hover/focus instead of the outer positioned <g>, so the zoom is
+   anchored on the icon's own center rather than compounding with its translate. */
+.interaction-graph-node-visual {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.15s ease;
+}
+
+.interaction-graph-node:hover .interaction-graph-node-visual,
+.interaction-graph-node:focus-visible .interaction-graph-node-visual {
+  transform: scale(1.5);
+}
+
+.interaction-graph-node-image {
+  transition: opacity 0.15s ease;
+}
+
+.interaction-graph-node-image-muted {
+  opacity: 0.35;
+}
+
+.interaction-graph-node-ring {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+.interaction-graph-hub-ring {
+  stroke-width: 4;
+}
+
+.interaction-graph-ring-pokemon {
+  stroke: var(--type-pokemon);
+}
+
+.interaction-graph-ring-trainer {
+  stroke: var(--type-trainer);
+}
+
+.interaction-graph-ring-energy {
+  stroke: var(--type-energy);
+}
+
+.interaction-graph-node-dot {
+  fill: var(--bar-fill);
+  stroke: var(--panel-bg);
+  stroke-width: 2;
+}
+
+.interaction-graph-node-dot-muted {
+  fill: var(--border);
+}
+
+.interaction-graph-node-hover-label {
+  fill: var(--text);
+  stroke: var(--panel-bg);
+  stroke-width: 3;
+  paint-order: stroke;
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.interaction-graph-tooltip {
+  min-height: 1.2rem;
+  text-align: center;
+}
+
+.interactions-graph-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.interactions-graph-row .interaction-graph-wrap {
+  flex: 1 1 420px;
+}
+
+.card-detail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1 1 280px;
+  max-width: 320px;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.card-detail-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.card-detail-close:hover {
+  color: var(--text);
+}
+
+.card-detail-image {
+  width: 60%;
+  max-width: 200px;
+  height: auto;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+.card-detail-info {
+  min-width: 0;
+}
+
+.card-detail-info h3 {
+  margin: 0 0 0.25rem;
+}
+
+.card-detail-meta {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.card-detail-text {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.card-detail-interactions {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.card-detail-interactions h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.card-detail-interactions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-detail-interaction-toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.energy-cost {
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: middle;
+}
+
+.energy-cost-pip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 /* Review panel */

@@ -5,9 +5,10 @@ import { DeckPanel } from './components/DeckPanel'
 import { StatisticsPanel } from './components/StatisticsPanel'
 import { ReviewPanel } from './components/ReviewPanel'
 import { DeckValidationsPanel } from './components/DeckValidationsPanel'
+import { InteractionsPanel } from './components/InteractionsPanel'
 import type { Card } from './types/card'
 
-type View = 'builder' | 'statistics' | 'review'
+type View = 'builder' | 'statistics' | 'interactions' | 'review'
 
 function App() {
   const deck = useDeck()
@@ -41,6 +42,13 @@ function App() {
           </button>
           <button
             type="button"
+            className={view === 'interactions' ? 'app-nav-active' : ''}
+            onClick={() => setView('interactions')}
+          >
+            Interactions
+          </button>
+          <button
+            type="button"
             className={view === 'review' ? 'app-nav-active' : ''}
             onClick={() => setView('review')}
           >
@@ -65,6 +73,11 @@ function App() {
       {view === 'statistics' && (
         <main className="app-main app-main-single">
           <StatisticsPanel cards={deck.cards} />
+        </main>
+      )}
+      {view === 'interactions' && (
+        <main className="app-main app-main-single">
+          <InteractionsPanel cards={deck.cards} />
         </main>
       )}
       {view === 'review' && (
