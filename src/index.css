@@ -449,6 +449,23 @@ body {
   background: var(--bg);
 }
 
+.stat-tile-clickable {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.stat-tile-clickable:hover {
+  border-color: var(--accent);
+}
+
+.stat-tile-active {
+  border-color: var(--accent);
+  background: var(--panel-bg);
+}
+
 .stat-tile-label {
   font-size: 0.85rem;
   color: var(--text-muted);

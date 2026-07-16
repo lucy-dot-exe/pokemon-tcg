@@ -1,3 +1,4 @@
+import { computeResistanceCounts, computeWeaknessCounts } from './weakness'
 import type { DeckCard } from '../types/card'
 
 export interface PokemonBreakdown {
@@ -24,11 +25,25 @@ export interface EnergyBreakdown {
   special: number
 }
 
+export interface WeaknessBreakdownEntry {
+  type: string
+  count: number
+}
+
+export interface ResistanceBreakdownEntry {
+  type: string
+  count: number
+}
+
 export interface DeckBreakdown {
   total: number
   pokemon: PokemonBreakdown
   trainer: TrainerBreakdown
   energy: EnergyBreakdown
+  weaknesses: WeaknessBreakdownEntry[]
+  noWeaknessCount: number
+  resistances: ResistanceBreakdownEntry[]
+  noResistanceCount: number
 }
 
 export function computeDeckBreakdown(cards: DeckCard[]): DeckBreakdown {
@@ -37,6 +52,10 @@ export function computeDeckBreakdown(cards: DeckCard[]): DeckBreakdown {
     pokemon: { total: 0, basic: 0, stage1: 0, stage2: 0, other: 0, ex: 0, mega: 0 },
     trainer: { total: 0, supporter: 0, item: 0, stadium: 0, tool: 0 },
     energy: { total: 0, basic: 0, special: 0 },
+    weaknesses: [],
+    noWeaknessCount: 0,
+    resistances: [],
+    noResistanceCount: 0,
   }
 
   for (const { card, count } of cards) {
@@ -66,6 +85,18 @@ export function computeDeckBreakdown(cards: DeckCard[]): DeckBreakdown {
       else e.special += count
     }
   }
+
+  const weaknessCounts = computeWeaknessCounts(cards)
+  breakdown.weaknesses = Array.from(weaknessCounts.countByType.entries())
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count)
+  breakdown.noWeaknessCount = weaknessCounts.noWeaknessCount
+
+  const resistanceCounts = computeResistanceCounts(cards)
+  breakdown.resistances = Array.from(resistanceCounts.countByType.entries())
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count)
+  breakdown.noResistanceCount = resistanceCounts.noResistanceCount
 
   return breakdown
 }

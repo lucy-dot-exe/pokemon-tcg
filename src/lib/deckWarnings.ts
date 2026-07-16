@@ -1,4 +1,5 @@
 import { computeOpeningHandStats } from './statistics'
+import { computeWeaknessCounts } from './weakness'
 import type { Card, DeckCard } from '../types/card'
 
 export interface DeckWarning {
@@ -187,20 +188,11 @@ function singleBasicCheck(cards: DeckCard[]): DeckWarning {
  * otherwise one well-typed opponent can threaten most of your board at once.
  */
 function weaknessCheck(cards: DeckCard[]): DeckWarning {
-  const pokemonCards = cards.filter((dc) => dc.card.supertype === 'Pokémon')
-  const totalPokemon = pokemonCards.reduce((sum, dc) => sum + dc.count, 0)
-
-  const countByWeakness = new Map<string, number>()
-  for (const { card, count } of pokemonCards) {
-    const weaknessTypes = new Set((card.weaknesses ?? []).map((weakness) => weakness.type))
-    for (const type of weaknessTypes) {
-      countByWeakness.set(type, (countByWeakness.get(type) ?? 0) + count)
-    }
-  }
+  const { totalPokemon, countByType } = computeWeaknessCounts(cards)
 
   const details: string[] = []
   if (totalPokemon > 0) {
-    for (const [type, count] of countByWeakness) {
+    for (const [type, count] of countByType) {
       const share = count / totalPokemon
       if (share > WEAKNESS_SHARE_THRESHOLD) {
         details.push(
