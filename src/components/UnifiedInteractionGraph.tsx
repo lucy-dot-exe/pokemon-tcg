@@ -207,7 +207,7 @@ export function UnifiedInteractionGraph({ interactions, cards, onCardClick }: Un
     }
   }, [hubNames, outerNames, connectedNames, edges, imageByName, supertypeByName])
 
-  if (hubNames.length === 0) return null
+  if (hubNames.length === 0 && outerNames.length === 0) return null
 
   const nodes = Array.from(nodesByIdRef.current.values())
   const positionByName = new Map(nodes.map((node) => [node.id, node]))

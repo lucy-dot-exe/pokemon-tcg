@@ -161,94 +161,84 @@ export function InteractionsPanel({ cards }: InteractionsPanelProps) {
     <section className="interactions-panel viz-root">
       <h2>Interactions</h2>
 
+      <div className="interactions-graph-row">
+        <UnifiedInteractionGraph interactions={visibleInteractions} cards={cards} onCardClick={setSelectedCardName} />
+        {selectedCard && (
+          <CardDetailCard
+            card={selectedCard}
+            interactions={interactions}
+            disabledInteractionIds={disabledInteractionIds}
+            onToggleInteraction={toggleInteraction}
+            onClose={() => setSelectedCardName(null)}
+          />
+        )}
+      </div>
+
       {interactions.length === 0 ? (
         <p className="status-text">No card interactions apply to your deck yet.</p>
       ) : (
-        <>
-          {visibleInteractions.length === 0 ? (
-            <p className="status-text">All interactions are hidden — check one below to show the graph.</p>
-          ) : (
-            <div className="interactions-graph-row">
-              <UnifiedInteractionGraph
-                interactions={visibleInteractions}
-                cards={cards}
-                onCardClick={setSelectedCardName}
-              />
-              {selectedCard && (
-                <CardDetailCard
-                  card={selectedCard}
-                  interactions={interactions}
-                  disabledInteractionIds={disabledInteractionIds}
-                  onToggleInteraction={toggleInteraction}
-                  onClose={() => setSelectedCardName(null)}
-                />
-              )}
-            </div>
-          )}
+        <div className="breakdown-section">
+          <h4>Interactions</h4>
+          <p className="status-text">Uncheck one to hide it from the graph. Click one to see what it matches.</p>
+          <ul className="custom-rule-list">
+            {interactions.map((interaction) => {
+              const isExpanded = expandedInteractionId === interaction.id
+              const condition = conditionById.get(interaction.id)
+              return (
+                <li key={interaction.id} className="custom-rule-row interaction-row">
+                  <input
+                    type="checkbox"
+                    checked={!disabledInteractionIds.has(interaction.id)}
+                    onChange={() => toggleInteraction(interaction.id)}
+                    aria-label={`Show ${interaction.triggerCardName} on the graph`}
+                  />
+                  <button
+                    type="button"
+                    className="interaction-query-trigger"
+                    aria-expanded={isExpanded}
+                    onClick={() => setExpandedInteractionId(isExpanded ? null : interaction.id)}
+                  >
+                    <strong>{interaction.triggerCardName}</strong> — {interaction.description}
+                  </button>
 
-          <div className="breakdown-section">
-            <h4>Interactions</h4>
-            <p className="status-text">Uncheck one to hide it from the graph. Click one to see what it matches.</p>
-            <ul className="custom-rule-list">
-              {interactions.map((interaction) => {
-                const isExpanded = expandedInteractionId === interaction.id
-                const condition = conditionById.get(interaction.id)
-                return (
-                  <li key={interaction.id} className="custom-rule-row interaction-row">
-                    <input
-                      type="checkbox"
-                      checked={!disabledInteractionIds.has(interaction.id)}
-                      onChange={() => toggleInteraction(interaction.id)}
-                      aria-label={`Show ${interaction.triggerCardName} on the graph`}
-                    />
-                    <button
-                      type="button"
-                      className="interaction-query-trigger"
-                      aria-expanded={isExpanded}
-                      onClick={() => setExpandedInteractionId(isExpanded ? null : interaction.id)}
-                    >
-                      <strong>{interaction.triggerCardName}</strong> — {interaction.description}
-                    </button>
+                  {isExpanded && (
+                    <div className="interaction-query-results">
+                      {condition ? (
+                        <>
+                          <p className="interaction-query-label">
+                            Same as building this on "New interaction" below:
+                          </p>
+                          <ul className="interaction-query-fields">
+                            {queryFields(condition).map((field) => (
+                              <li key={field}>{field}</li>
+                            ))}
+                          </ul>
+                        </>
+                      ) : (
+                        <p className="status-text">Not something the builder below can create (evolution is structural).</p>
+                      )}
 
-                    {isExpanded && (
-                      <div className="interaction-query-results">
-                        {condition ? (
-                          <>
-                            <p className="interaction-query-label">
-                              Same as building this on "New interaction" below:
-                            </p>
-                            <ul className="interaction-query-fields">
-                              {queryFields(condition).map((field) => (
-                                <li key={field}>{field}</li>
-                              ))}
-                            </ul>
-                          </>
-                        ) : (
-                          <p className="status-text">Not something the builder below can create (evolution is structural).</p>
-                        )}
-
-                        {interaction.matchingCards.length === 0 ? (
-                          <p className="status-text">No cards in your deck match this interaction.</p>
-                        ) : (
-                          <>
-                            <p className="interaction-query-label">Currently matches:</p>
-                            <ul>
-                              {interaction.matchingCards.map((match) => (
-                                <li key={match.name}>
-                                  {match.name} × {match.count}
-                                </li>
-                              ))}
-                            </ul>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        </>
+                      {interaction.matchingCards.length === 0 ? (
+                        <p className="status-text">No cards in your deck match this interaction.</p>
+                      ) : (
+                        <>
+                          <p className="interaction-query-label">Currently matches:</p>
+                          <ul>
+                            {interaction.matchingCards.map((match) => (
+                              <li key={match.name}>
+                                {match.name} × {match.count}
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       )}
 
       {customRules.length > 0 && (
