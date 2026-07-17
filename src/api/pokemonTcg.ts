@@ -4,16 +4,6 @@ import type { Card, CardSearchResponse, Format, Supertype } from '../types/card'
 
 const BASE_URL = 'https://api.pokemontcg.io/v2'
 
-// Raises the rate limit from the unauthenticated default to 20,000 requests/day.
-// Not a sensitive secret (just a rate-limit token), but still kept out of source
-// via .env.local (gitignored) rather than hardcoded, and out of CI logs via a
-// repo secret for the production build.
-const API_KEY = import.meta.env.VITE_POKEMON_TCG_API_KEY as string | undefined
-
-function apiHeaders(): HeadersInit | undefined {
-  return API_KEY ? { 'X-Api-Key': API_KEY } : undefined
-}
-
 export interface SearchCardsOptions {
   name?: string
   format?: Format
@@ -69,7 +59,7 @@ export async function searchCards({
   params.set('pageSize', String(pageSize))
   params.set('orderBy', 'name')
 
-  const response = await fetch(`${BASE_URL}/cards?${params.toString()}`, { signal, headers: apiHeaders() })
+  const response = await fetch(`${BASE_URL}/cards?${params.toString()}`, { signal })
   if (!response.ok) {
     throw new Error(`Pokemon TCG API request failed: ${response.status} ${response.statusText}`)
   }
@@ -77,7 +67,7 @@ export async function searchCards({
 }
 
 export async function getCardById(id: string, signal?: AbortSignal): Promise<Card> {
-  const response = await fetch(`${BASE_URL}/cards/${id}`, { signal, headers: apiHeaders() })
+  const response = await fetch(`${BASE_URL}/cards/${id}`, { signal })
   if (!response.ok) {
     throw new Error(`Pokemon TCG API request failed: ${response.status} ${response.statusText}`)
   }
@@ -89,7 +79,7 @@ async function queryCards(q: string, signal?: AbortSignal): Promise<Card[]> {
   const params = new URLSearchParams()
   params.set('q', q)
   params.set('pageSize', '250')
-  const response = await fetch(`${BASE_URL}/cards?${params.toString()}`, { signal, headers: apiHeaders() })
+  const response = await fetch(`${BASE_URL}/cards?${params.toString()}`, { signal })
   if (!response.ok) {
     throw new Error(`Pokemon TCG API request failed: ${response.status} ${response.statusText}`)
   }
